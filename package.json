@@ -1,0 +1,29 @@
+{
+  "name": "valowiki",
+  "version": "0.0.1",
+  "description": "my own version of VALORANT Wiki Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SaraX73/ValoWiki.git"
+  },
+  "keywords": [
+    "VALORANT",
+    "WIKI",
+    "DISCORD",
+    "BOT"
+  ],
+  "author": "SaraX73",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SaraX73/ValoWiki/issues"
+  },
+  "homepage": "https://github.com/SaraX73/ValoWiki#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3",
+    "dotenv": "^8.2.0"
+  }
+}
