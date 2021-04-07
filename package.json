@@ -25,6 +25,7 @@
   "homepage": "https://github.com/SaraX73/ValoWiki#readme",
   "dependencies": {
     "discord.js": "^12.5.3",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "x73db": "^1.1.0"
   }
 }
