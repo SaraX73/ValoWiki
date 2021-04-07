@@ -7,7 +7,7 @@ const fs = require("fs");
 const x73db = require("x73db");
 const cdn = require("./utils/cdn");
 const configs = require("./configs.json");
-const defults = require("./defults.json");
+const defaults = require("./defaults.json");
 
 //classes construction
 const client = new Discord.Client();
@@ -38,7 +38,7 @@ client.baseEmbed = baseEmbed;
 client.getArgs = getArgs;
 client.cooldowns = cooldowns;
 client.databases = databases;
-client.defules = defults;
+client.defaults = defaults;
 client.getPrefix = getPrefix;
 client.getGuild = getGuild;
 
@@ -204,10 +204,10 @@ client.on("message",async(message) => {
         //check if there is any options in ${data} variable
         if(!data) {
             //set ${data} variable to defult options
-            data = defults.guilds;
+            data = defaults.guilds;
         } else {
             //check all options one-by-one and set it to defult if not exist
-            for(let [key,value] of Object.entries(defults)) {
+            for(let [key,value] of Object.entries(defaults)) {
                 if(!data[key]) data[key] = value;
             }
         }
@@ -221,11 +221,28 @@ client.on("message",async(message) => {
 
     //some basic error messages
     function sendErrMsg(message,code,data) {
-        // let description = "";
-        // let title = "";
-        // switch(code) {}
-        // message.reply(
-        //     baseEmbed()
-        // )
+        //load the basic embed
+        let embed = baseEmbed();
+        
+        //edit the embed (based in data and the error code)
+        switch(code) {
+            //return if code not found
+            default:return;break;
+
+            //if the command for guilds only
+            case "guild_only":
+            embed.setTitle(`Sorry!`);
+            embed.setDescription(`\`${data}\` command is for guild only`)
+            break;
+
+            //if the command for developers only
+            case "dev_only":
+            embed.setTitle(`Sorry!`);
+            embed.setDescription(`\`${data}\` command is for bot devlopers only`)
+            break;
+
+        }
+        if(embed == baseEmbed()) return;
+        message.reply()
         return;
     }
