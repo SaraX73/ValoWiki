@@ -97,7 +97,7 @@ obj['abilities']['utils'] = {
     "Uses_2": `${baseURL}abilities/utils/Uses_2.png`,
     "Uses_3": `${baseURL}abilities/utils/Uses_3.png`,
     "Uses_5_Astra": `${baseURL}abilities/utils/Uses_5_Astra.png`,
-}
+};
 
 obj['abilities']['icons'] = {};
 
@@ -261,7 +261,7 @@ obj['abilities']['icons']['by_ability_name'] = {
     "Dissipate": aa[`astra`][`E`],
     "Astral Form": aa[`astra`][`X`],
     "Cosmic Divide": aa[`astra`][`X2`]
-}
+};
 
 obj['abilities']['icons']['by_agent_number+hotkey'] = [
     aa["brimstone"],
@@ -279,6 +279,16 @@ obj['abilities']['icons']['by_agent_number+hotkey'] = [
     aa["skye"],
     aa["yoru"],
     aa["astra"]
-]
+];
+
+obj['utils'] = {};
+
+obj['utils']['gameIcons'] = {
+    "icon_1": `${baseURL}utils/gameIcons/icon_1.png`,
+    "icon_2": `${baseURL}utils/gameIcons/icon_2.png`,
+    "icon_3": `${baseURL}utils/gameIcons/icon_3.png`,
+    "icon_4": `${baseURL}utils/gameIcons/icon_4.png`,
+    "icon_5": `${baseURL}utils/gameIcons/icon_5.png`
+};
 
 module.exports = obj;

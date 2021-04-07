@@ -1,7 +1,8 @@
 {
   "name": "valowiki",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "my own version of VALORANT Wiki Discord Bot",
+  "build": "wip",
   "main": "index.js",
   "scripts": {
     "test": "node index"
