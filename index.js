@@ -4,12 +4,19 @@ require("dotenv").config();
 //Dependency directories
 const Discord = require("discord.js");
 const fs = require("fs");
+const x73db = require("x73db");
 const cdn = require("./utils/cdn");
+const configs = require("./configs.json");
+const defults = require("./defults.json");
 
 //classes construction
 const client = new Discord.Client();
 const cooldowns = new Discord.Collection();
 const commands = new Discord.Collection();
+const databases = {
+    guilds: new x73db("guilds",{path: "DiscordDB"}),
+    users: new x73db("users",{path: "DiscordDB"})
+}
 
 //loading commands files
 const commandsFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
@@ -23,9 +30,6 @@ for(let file of commandsFiles){
     }
 };
 
-//load configs.json file
-const configs = require("./configs.json");
-
 //build in client
 client.commands = commands;
 client.configs = configs;
@@ -33,6 +37,10 @@ client.cdn = cdn;
 client.baseEmbed = baseEmbed;
 client.getArgs = getArgs;
 client.cooldowns = cooldowns;
+client.databases = databases;
+client.defules = defults;
+client.getPrefix = getPrefix;
+client.getGuild = getGuild;
 
 //connect to discord api using bot token from .env file 
 client.login(process.env['DISCORD_TOKEN']);
@@ -42,55 +50,95 @@ client.on("ready",() => console.log(client.user.tag));
 
 //client "message" events
 client.on("message",async(message) => {
-    if(!message.guild || message.author.bot) return;//ignore Dm's and bots
+    
+//before loading command
+    //ignore Dm's and bots
+    if(!message.guild || message.author.bot) return;
 
-    let prefix = configs['prefix'];//temp
+    //get guild prefix
+    let prefix = getPrefix(message.guild);
 
-    if(!message.content.startsWith(prefix)) return;//check message prefix
-    let args = getArgs(message.content);//check the function for info
-    if(fn1(message,prefix)) return;//check the function for info
+    //check message prefix
+    if(!message.content.startsWith(prefix)) return;
 
-    let commandName = args.shift().toLowerCase().slice(prefix.length);//get the required command
-    let command = commands.get(commandName) || commands.find(c => c.aliases && c.aliases.includes(commandName));//load command file
-    if(!command) return;//stop if no command loaded
+    //get message args
+    let args = getArgs(message.content);
 
-    if(configs.ignored_commands.includes(command.name)) return;//check if this command is ignored
-    if(command.guildOnly && !message.guild) return;//now useless, will help later
-    if(command.devOnly && !configs.devs.includes(message.author.id)) return message.reply(
-        baseEmbed()
-            .setTitle("Nope!")
-            .setDescription("this command is for bot developers only")
-        );//devOnly commands check
-        //temp cooldown system from discordjs.guide
+    //check if user is asking for prefix
+    if(cPrefix(message,prefix)) return;
+
+
+//loading the command
+    //get the required command name/alias
+    let commandName = args.shift().toLowerCase().slice(prefix.length);
+
+    //try to get command data
+    let command = commands.get(commandName) || commands.find(c => c.aliases && c.es.includes(commandName));
+
+    //stop if no command loaded
+    if(!command) return;
+
+
+//check user & command configs before running it
+    //check if this command is ignored (ex: template.js)
+    if(configs.ignored_commands.includes(command.name)) return sendErrMsg(message,"ignored_command",commandName);
+
+    //check channel type and "guildOnly" option (now useless, will help later)
+    if(command.guildOnly && !message.guild) return sendErrMsg(message,"guild_only",commandName);
+
+    //check the user and "devOnly" option
+    if(command.devOnly && !configs.devs.includes(message.author.id)) return sendErrMsg(message,"dev_only",commandName);
+
+    //check if the user have the required permissions to run this command
+    if(command.permissions && !message.member.permissionsIn(message.channel).has(command.permissions)) return sendErrMsg(message,"dev_only",command);
+
+    //check if the user is under cooldown for this command
     if(command.cooldown) {
-        if (!cooldowns.has(command.name)) {
-            cooldowns.set(command.name, new Discord.Collection());
-        }
+
+        //create timestamps for this command if not exist
+        if (!cooldowns.has(command.name)) cooldowns.set(command.name, new Discord.Collection());
+
+        //get currect time 
         const now = Date.now();
+
+        //get cooldowns for the command
         const timestamps = cooldowns.get(command.name);
+
+        //convert cooldown from secends to milliseconds
         const cooldownAmount = (command.cooldown || 0) * 1000;
 
+        //check if the user in cooldown-list for this command
         if (timestamps.has(message.author.id)) {
+
+            //get cooldown expiration time
             const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
         
+            //check if expirationTime isn't ended yet
             if (now < expirationTime) {
+
+                //get the left time (by seconds)
                 const timeLeft = (expirationTime - now) / 1000;
-                return message.reply(
-                    baseEmbed(message)
-                        .setTitle("under cooldown")
-                        .setDescription(`please wait ${timeLeft.toFixed(1)} more second(s) before reusing the \`${command.name}\` command.`)
-                        );
+
+                //reply to the user and stop
+                return sendErrMsg(message,"cooldown",{command,timeLeft: timeLeft.toFixed(0)});
             }
         }
+        
+        //add the user to the cooldown-list
         timestamps.set(message.author.id, now);
+
+        //remove the user from the cooldown-list after the time ends
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
     }
 
-    
+    //now finally run the command
     try {
-        command.run();//excute the command
+        //excute the command
+        command.run();
+
     } catch(e) {
-        message.reply(baseEmbed(message).setTitle("Error!").setDescription(`\`\`\`${e}\`\`\``));//send the error to the user if there is any
+        //send the error to the user if there is any
+        message.reply(baseEmbed(message).setTitle("Error!").setDescription(`\`\`\`${e}\`\`\``));
     };
 })
 
@@ -98,13 +146,20 @@ client.on("message",async(message) => {
 //////////////
 //functions
     //check if bot is mentioned and user is asking for prefix
-    function fn1(message = new Discord.Message(),prefix = String()) {
+    function cPrefix(message,prefix) {
+        //get args from the message
         let args = getArgs(message.content);
+        //check if the bot mentioned
         if(message.mentions.members.size && message.mentions.members.first() ==  client.user.id){
+
+            //chech the other args before reply
             if((!args[1] || args[1] == "" || args[1] == "prefix") && (!args[2] || args[2] == "")){
+
+                //reply to the user
                 let embed = baseEmbed(message)
-                                .setDescription(`**My prefix is:** \`${prefix}\``)
-                message.reply(embed)
+                    .setDescription(`**My prefix is:** \`${prefix}\``);
+                message.reply(embed);
+
                 return true
             }
         }
@@ -113,6 +168,7 @@ client.on("message",async(message) => {
 
     //get args from string
     function getArgs(str = new String()) {
+        //return an array (string but all spaces " " splited)
         return str.split(/ +/)
     }
 
@@ -123,4 +179,53 @@ client.on("message",async(message) => {
                         .setTimestamp(Date.now())
                         .setFooter(message.author.tag,message.author.displayAvatarURL({dynamic: true}))
                         .setThumbnail(cdn['utils']['gameIcons']['icon_2'])
+    }
+
+    //get guild prefix
+    function getPrefix(guild) {
+        //get guild data
+        let data = getGuild(guild.id)
+
+        //get prefix from that data
+        let {prefix} = data;
+
+        //return the prefix
+        return prefix
+    }
+
+    // get/create guild data by ID
+    function getGuild(id = String()) {
+        //get guild data
+        let data = databases.guilds.get(id);
+
+        //get the guild data again in other variable
+        let oData = databases.guilds.get(id);
+
+        //check if there is any options in ${data} variable
+        if(!data) {
+            //set ${data} variable to defult options
+            data = defults.guilds;
+        } else {
+            //check all options one-by-one and set it to defult if not exist
+            for(let [key,value] of Object.entries(defults)) {
+                if(!data[key]) data[key] = value;
+            }
+        }
+
+        //save the data if there is any changes
+        if(data !== oData) databases.guilds.set(id);
+
+        //return the data
+        return data;
+    }
+
+    //some basic error messages
+    function sendErrMsg(message,code,data) {
+        // let description = "";
+        // let title = "";
+        // switch(code) {}
+        // message.reply(
+        //     baseEmbed()
+        // )
+        return;
     }
