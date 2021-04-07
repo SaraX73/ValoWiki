@@ -6,6 +6,7 @@ let obj = {};
 
 obj['agents'] = {};
 obj['agents']['byNumber'] = [
+    null,
     {
         "artwork": `${baseURL}agents/artwork/1.png`,
         "inGameIcon": `${baseURL}agents/inGameIcon/1.png`
