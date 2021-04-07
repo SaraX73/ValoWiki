@@ -4,7 +4,7 @@ module.exports = {
     description: "useless and ignored command",//string
     guildOnly: null,//bool
     devOnly: null,
-    cooldown: 10,//nymber
+    cooldown: null,//nymber
     permissions: null,//array
     run: async() => {//f
 

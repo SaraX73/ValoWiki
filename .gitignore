@@ -102,5 +102,5 @@ dist
 
 # TernJS port file
 .tern-port
+#tmep packages file
 package-lock.json
-commands/template.js
