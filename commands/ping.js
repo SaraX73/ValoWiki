@@ -1,9 +1,7 @@
-const Discord = require("discord.js");
-
 module.exports = {
     description: "diplay bot ping",
     cooldown: 60,
-    run: async(message = new Discord.Message(),args) => {
+    run: async(message,args) => {
         //send message
         const botMsg = await message.channel.send("Pinging...")
 

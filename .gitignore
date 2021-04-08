@@ -108,3 +108,9 @@ package-lock.json
 
 #bot databases
 DiscordDB
+
+#meta-data
+metadata
+
+#template
+commands/template.js
