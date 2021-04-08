@@ -209,7 +209,7 @@ client.on("message",async(message) => {
             data = defaults.guilds;
         } else {
             //check all options one-by-one and set it to defult if not exist
-            for(let [key,value] of Object.entries(defaults)) {
+            for(let [key,value] of Object.entries(defaults.guilds)) {
                 if(!data[key]) data[key] = value;
             };
         };
