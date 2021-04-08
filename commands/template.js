@@ -1,3 +1,6 @@
+const Discord = require("discord.js");
+
+
 module.exports = {
     ignored: true,//bool (use only for template and under-developing commands)
     aliases: null,//array
@@ -7,7 +10,7 @@ module.exports = {
     devOnly: null,
     cooldown: null,//number
     permissions: null,//array
-    run: async() => {//f
+    run: async(message,args) => {//f
 
     }
 }
