@@ -13,6 +13,7 @@ const defaults = require("./defaults.json");
 const client = new Discord.Client();
 const cooldowns = new Discord.Collection();
 const commands = new Discord.Collection();
+const reportedErrors = new Discord.Collection();
 const databases = {
     guilds: new x73db("guilds",{path: "DiscordDB"}),
     users: new x73db("users",{path: "DiscordDB"})
@@ -41,6 +42,7 @@ client.databases = databases;
 client.defaults = defaults;
 client.getPrefix = getPrefix;
 client.getGuild = getGuild;
+client.reportedErrors = reportedErrors;
 
 //connect to discord api using bot token from .env file 
 client.login(process.env['DISCORD_TOKEN']);
@@ -81,16 +83,16 @@ client.on("message",async(message) => {
 
 //check user & command configs before running it
     //check if this command is ignored (ex: template.js)
-    if(configs.ignored_commands.includes(command.name)) return sendErrMsg(message,"ignored_command",commandName);
+    if(command.ignored) return sendErrMsg(message,"ignored_command",command);
 
     //check channel type and "guildOnly" option (now useless, will help later)
-    if(command.guildOnly && !message.guild) return sendErrMsg(message,"guild_only",commandName);
+    if(command.guildOnly && !message.guild) return sendErrMsg(message,"guild_only",command);
 
     //check the user and "devOnly" option
-    if(command.devOnly && !configs.devs.includes(message.author.id)) return sendErrMsg(message,"dev_only",commandName);
+    if(command.devOnly && !configs.devs.includes(message.author.id)) return sendErrMsg(message,"dev_only",command);
 
     //check if the user have the required permissions to run this command
-    if(command.permissions && !message.member.permissionsIn(message.channel).has(command.permissions)) return sendErrMsg(message,"dev_only",command);
+    if(command.permissions && !message.member.permissionsIn(message.channel).has(command.permissions)) return sendErrMsg(message,"no_permissions",command);
 
     //check if the user is under cooldown for this command
     if(command.cooldown) {
@@ -117,10 +119,10 @@ client.on("message",async(message) => {
             if (now < expirationTime) {
 
                 //get the left time (by seconds)
-                const timeLeft = (expirationTime - now) / 1000;
+                const timeLeft = Math.ceil((expirationTime - now) / 1000);
 
                 //reply to the user and stop
-                return sendErrMsg(message,"cooldown",{command,timeLeft: timeLeft.toFixed(0)});
+                return sendErrMsg(message,"cooldown",command,timeLeft);
             }
         }
         
@@ -220,29 +222,81 @@ client.on("message",async(message) => {
     }
 
     //some basic error messages
-    function sendErrMsg(message,code,data) {
+    function sendErrMsg(message,code,command,data) {
         //load the basic embed
         let embed = baseEmbed();
         
         //edit the embed (based in data and the error code)
         switch(code) {
-            //return if code not found
-            default:return;break;
 
+            //if the command is ignored
+            case "ignored_command": 
+                //do nothing right now
+            break;
+            
             //if the command for guilds only
             case "guild_only":
-            embed.setTitle(`Sorry!`);
-            embed.setDescription(`\`${data}\` command is for guild only`)
+                //change the embed data
+                embed.setTitle(`Sorry!`);
+                embed.setDescription(`\`${command.name}\` command is for **guilds** only`);
             break;
 
             //if the command for developers only
             case "dev_only":
-            embed.setTitle(`Sorry!`);
-            embed.setDescription(`\`${data}\` command is for bot devlopers only`)
+                //change the embed data
+                embed.setTitle(`Sorry!`);
+                embed.setDescription(`\`${command.name}\` command is for **bot devlopers** only`);
             break;
 
+            //if the user don't have the required permissions to run the command
+            case "no_permissions":
+
+            //if it's single permission required
+            if(typeof command.permissions == "string") {
+
+            //process the permission to be user-friendly
+            let missing_prem = command.permissions.toLowerCase().split("_").join(" ")
+                //change the embed data
+                embed.setTitle(`Sorry!`);
+                embed.setDescription(`You need \`${missing_prem}\` permission in this **server/channel** to run ${command.name} command`);
+
+            //else: if it's array for permissions
+            } else {
+
+            //new variable (will be array of missing permissions)
+            let missing_prems = [];
+
+                //loop on the required permissions one-by-one
+                for(let prem of command.permissions){
+                    //if the user don't have the correct permissions, add it to missing permissions list
+                    if(!message.member.permissionsIn(message.channel).has(command.permissions)) missing_prems.push(prem);
+                }
+            
+            //process the permissions to be user-friendly
+            missing_prems = missing_prems.map(prem => prem.toLowerCase().split("_").join(" "))
+
+            //change the embed data
+            embed.setTitle(`Sorry!`);
+            embed.setDescription(`You need \`${missing_prems.join("\`**,**\`")}\` permission(s) in this **server/channel** to run \`${command.name}\` command`);
+            }
+
+            break;
+
+            //if the user is under-cooldown
+            case "cooldown":
+                //change the embed data
+                embed.setTitle(`Sorry!`);
+                embed.setDescription(`You have to wait \`${data}\` **second(s)** before be able to use \`${command.name}\` command again`);
+            break;
+
+            //return if code not found
+            default:return;
+
         }
+        
+        //stop if there isn't any changes to the embed
         if(embed == baseEmbed()) return;
-        message.reply()
-        return;
+
+        //send the embed
+        message.reply(embed)
     }
