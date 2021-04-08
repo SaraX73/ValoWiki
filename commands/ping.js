@@ -50,6 +50,6 @@ module.exports = {
         )
 
         //edit the message sent by bot to the new embed
-        botMsg.edit(embed)
+        botMsg.edit(``,embed)
     }
 }
