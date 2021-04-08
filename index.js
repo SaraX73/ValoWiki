@@ -136,7 +136,7 @@ client.on("message",async(message) => {
     //now finally run the command
     try {
         //excute the command
-        command.run();
+        command.run(message,args);
 
     } catch(e) {
         //send the error to the user if there is any

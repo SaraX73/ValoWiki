@@ -291,4 +291,12 @@ dataObject['utils']['gameIcons'] = {
     "icon_5": `${baseURL}utils/gameIcons/icon_5.png`
 };
 
+dataObject['utils']['ping'] = [
+    `${baseURL}utils/ping/0.png`,
+    `${baseURL}utils/ping/1.png`,
+    `${baseURL}utils/ping/2.png`,
+    `${baseURL}utils/ping/3.png`,
+    `${baseURL}utils/ping/4.png`
+];
+
 module.exports = dataObject;
