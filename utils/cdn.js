@@ -2,10 +2,10 @@
     //hosted on github
 let baseURL = "https://valowiki.github.io/cdn/";
 
-let dataObject = {};
+let cdn = {};
 
-dataObject['agents'] = {};
-dataObject['agents']['byNumber'] = [
+cdn['agents'] = {};
+cdn['agents']['byNumber'] = [
     null,
     {
         "artwork": `${baseURL}agents/artwork/1.png`,
@@ -69,9 +69,9 @@ dataObject['agents']['byNumber'] = [
     }
 ];
 
-let agents_by_number = dataObject['agents']['byNumber'];
+let agents_by_number = cdn['agents']['byNumber'];
 
-dataObject['agents']['byName'] = {
+cdn['agents']['byName'] = {
     "brimstone" : agents_by_number[0],
     "phoenix"   : agents_by_number[1],
     "sage"      : agents_by_number[2],
@@ -89,9 +89,9 @@ dataObject['agents']['byName'] = {
     "astra"     : agents_by_number[14],
 };
 
-dataObject['abilities'] = {};
+cdn['abilities'] = {};
 
-dataObject['abilities']['utils'] = {
+cdn['abilities']['utils'] = {
     "duration": `${baseURL}abilities/utils/Duration.png`,
     "Uses_1": `${baseURL}abilities/utils/Uses_1.png`,
     "Uses_2": `${baseURL}abilities/utils/Uses_2.png`,
@@ -99,9 +99,9 @@ dataObject['abilities']['utils'] = {
     "Uses_5_Astra": `${baseURL}abilities/utils/Uses_5_Astra.png`,
 };
 
-dataObject['abilities']['icons'] = {};
+cdn['abilities']['icons'] = {};
 
-dataObject['abilities']['icons']['by_agent_name+hotkey'] = {
+cdn['abilities']['icons']['by_agent_name+hotkey'] = {
 
     "brimstone" : {
         "C": `${baseURL}abilities/icons/1/C.png`,
@@ -196,9 +196,9 @@ dataObject['abilities']['icons']['by_agent_name+hotkey'] = {
     },
 };
 
-let ab_ico_by_hotkey = dataObject['abilities']['icons']['by_agent_name+hotkey'];
+let ab_ico_by_hotkey = cdn['abilities']['icons']['by_agent_name+hotkey'];
 
-dataObject['abilities']['icons']['by_ability_name'] = {
+cdn['abilities']['icons']['by_ability_name'] = {
     "Cloudburst": ab_ico_by_hotkey[`jett`][`C`],
     "Updraft": ab_ico_by_hotkey[`jett`][`Q`],
     "Tailwind": ab_ico_by_hotkey[`jett`][`E`],
@@ -263,7 +263,7 @@ dataObject['abilities']['icons']['by_ability_name'] = {
     "Cosmic Divide": ab_ico_by_hotkey[`astra`][`X2`]
 };
 
-dataObject['abilities']['icons']['by_agent_number+hotkey'] = [
+cdn['abilities']['icons']['by_agent_number+hotkey'] = [
     ab_ico_by_hotkey["brimstone"],
     ab_ico_by_hotkey["phoenix"],
     ab_ico_by_hotkey["sage"],
@@ -281,9 +281,9 @@ dataObject['abilities']['icons']['by_agent_number+hotkey'] = [
     ab_ico_by_hotkey["astra"]
 ];
 
-dataObject['utils'] = {};
+cdn['utils'] = {};
 
-dataObject['utils']['gameIcons'] = {
+cdn['utils']['gameIcons'] = {
     "icon_1": `${baseURL}utils/gameIcons/icon_1.png`,
     "icon_2": `${baseURL}utils/gameIcons/icon_2.png`,
     "icon_3": `${baseURL}utils/gameIcons/icon_3.png`,
@@ -291,7 +291,7 @@ dataObject['utils']['gameIcons'] = {
     "icon_5": `${baseURL}utils/gameIcons/icon_5.png`
 };
 
-dataObject['utils']['ping'] = [
+cdn['utils']['ping'] = [
     `${baseURL}utils/ping/0.png`,
     `${baseURL}utils/ping/1.png`,
     `${baseURL}utils/ping/2.png`,
@@ -299,4 +299,15 @@ dataObject['utils']['ping'] = [
     `${baseURL}utils/ping/4.png`
 ];
 
-module.exports = dataObject;
+cdn['utils']['help'] = {
+    "help1": `${baseURL}utils/help/help1.png`,
+    "help2": `${baseURL}utils/help/help2.png`
+}
+
+cdn['utils']['errors'] = {
+    "error": `${baseURL}utils/errors/error.png`,
+    "warn": `${baseURL}utils/errors/warn.png`,
+    "info": `${baseURL}utils/errors/info.png`
+}
+
+module.exports = cdn;

@@ -1,5 +1,6 @@
 {
     "embed_color": "ff4654",
     "devs": ["596026298397097986"],
-    "error_cooldown": 600000
+    "error_cooldown": 600000,
+    "help_inline": true
 }

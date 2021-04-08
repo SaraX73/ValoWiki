@@ -11,6 +11,6 @@ module.exports = {
     cooldown: null,//number
     permissions: null,//array
     run: async(message,args) => {//f
-
+        
     }
 }

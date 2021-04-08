@@ -14,6 +14,9 @@ require("dotenv").config();
     //cdn manager
     const cdn = require("./utils/cdn");
 
+    //metadata manager
+    const metadata = require("./utils/metadata")
+
     //bot configs
     const configs = require("./configs.json");
 
@@ -75,6 +78,7 @@ client.reportedErrors = reportedErrors;//collection
 client.sendErrMsg = sendErrMsg;//function(class,string,object,any) -> (null)
 client.errSendable = errSendable;//function(class,string,objec) -> (bool)
 client.getErrCode = getErrCode;//function(class,string,object) -> (string)
+client.metadata = metadata;//object*object -> any
 
 //connect to discord api using bot token from .env file 
 client.login(process.env['DISCORD_TOKEN']);
@@ -107,7 +111,7 @@ client.on("message",async(message) => {
     let commandName = args.shift().toLowerCase().slice(prefix.length);
 
     //try to get command data
-    let command = commands.get(commandName) || commands.find(c => c.aliases && c.es.includes(commandName));
+    let command = commands.get(commandName) || commands.find(c => c.aliases && c.aliases.includes(commandName));
 
     //stop if no command loaded
     if(!command) return;
@@ -333,6 +337,8 @@ client.on("message",async(message) => {
         let newEmbed = baseEmbed(message);
         if(embed.title == newEmbed.title && embed.description == newEmbed.description) return;
 
+        //set embed thumbnail
+        embed.setThumbnail(cdn['utils']['errors']['warn']);
         //send the embed
         message.reply(embed);
     };
