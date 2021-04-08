@@ -215,7 +215,7 @@ client.on("message",async(message) => {
         }
 
         //save the data if there is any changes
-        if(data !== oData) databases.guilds.set(id);
+        if(data !== oData) databases.guilds.set(id,data);
 
         //return the data
         return data;
@@ -224,7 +224,7 @@ client.on("message",async(message) => {
     //some basic error messages
     function sendErrMsg(message,code,command,data) {
         //load the basic embed
-        let embed = baseEmbed();
+        let embed = baseEmbed(message);
         
         //edit the embed (based in data and the error code)
         switch(code) {
@@ -269,7 +269,7 @@ client.on("message",async(message) => {
                 //loop on the required permissions one-by-one
                 for(let prem of command.permissions){
                     //if the user don't have the correct permissions, add it to missing permissions list
-                    if(!message.member.permissionsIn(message.channel).has(command.permissions)) missing_prems.push(prem);
+                    if(!message.member.permissionsIn(message.channel).has(prem)) missing_prems.push(prem);
                 }
             
             //process the permissions to be user-friendly
@@ -277,7 +277,7 @@ client.on("message",async(message) => {
 
             //change the embed data
             embed.setTitle(`Sorry!`);
-            embed.setDescription(`You need \`${missing_prems.join("\`**,**\`")}\` permission(s) in this **server/channel** to run \`${command.name}\` command`);
+            embed.setDescription(`\`${missing_prems.join("\`**,**\`")}\` permission(s) are missing, you need them to run \`${command.name}\` command in this **server/channel** `);
             }
 
             break;
@@ -295,7 +295,8 @@ client.on("message",async(message) => {
         }
         
         //stop if there isn't any changes to the embed
-        if(embed == baseEmbed()) return;
+        let newEmbed = baseEmbed(message);
+        if(embed.title == newEmbed.title && embed.description == newEmbed.description) return;
 
         //send the embed
         message.reply(embed)
