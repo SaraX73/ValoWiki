@@ -2,47 +2,79 @@
 require("dotenv").config();
 
 //Dependency directories
-const Discord = require("discord.js");
-const fs = require("fs");
-const x73db = require("x73db");
-const cdn = require("./utils/cdn");
-const configs = require("./configs.json");
-const defaults = require("./defaults.json");
+    //discord library
+    const Discord = require("discord.js");
+
+    //nodeJS files system
+    const fs = require("fs");
+
+    //my own databases package :")
+    const x73db = require("x73db");
+
+    //cdn manager
+    const cdn = require("./utils/cdn");
+
+    //bot configs
+    const configs = require("./configs.json");
+
+    //default users/guilds sittings
+    const defaults = require("./defaults.json");
 
 //classes construction
-const client = new Discord.Client();
-const cooldowns = new Discord.Collection();
-const commands = new Discord.Collection();
-const reportedErrors = new Discord.Collection();
-const databases = {
+    //discord client
+    const client = new Discord.Client();
+
+    //empty collection for cooldowns data
+    const cooldowns = new Discord.Collection();
+
+    //empty collection for commands data
+    const commands = new Discord.Collection();
+
+    //empty collection for errors cooldowns data
+    const reportedErrors = new Discord.Collection();
+
+    //bot databases
+    const databases = {
     guilds: new x73db("guilds",{path: "DiscordDB"}),
     users: new x73db("users",{path: "DiscordDB"})
 };
 
-//loading commands files
-const commandsFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
-for(let file of commandsFiles){
-    try {
-        let cmd = require(`./commands/${file}`);
-        cmd.name = file.slice(0,file.length - 3);
-        commands.set(cmd.name,cmd);
-    } catch (e) {
-        console.error(`Error: command load failed (${file}) -> ${e}`);
-    }
+//loading commands
+    //load commands files list
+    const commandsFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
+
+    //loop on that list
+    for(let file of commandsFiles){
+        try {
+            //load command file data
+            let cmd = require(`./commands/${file}`);
+
+            //set "command.name" to file-name (.js removed)
+            cmd.name = file.slice(0,file.length - 3);
+
+            //add data to commands list
+            commands.set(cmd.name,cmd);
+        } catch (e) {
+           //log there is an error while trying to load that command
+            console.error(`Error: command load failed (${file}) -> ${e}`);
+        }
 };
 
 //build in client
-client.commands = commands;
-client.configs = configs;
-client.cdn = cdn;
-client.baseEmbed = baseEmbed;
-client.getArgs = getArgs;
-client.cooldowns = cooldowns;
-client.databases = databases;
-client.defaults = defaults;
-client.getPrefix = getPrefix;
-client.getGuild = getGuild;
-client.reportedErrors = reportedErrors;
+client.commands = commands;//collection
+client.configs = configs;//object -> any
+client.cdn = cdn;//object*object -> string
+client.baseEmbed = baseEmbed;//function(class) -> (class)
+client.getArgs = getArgs;//function(string) -> (array -> string)
+client.cooldowns = cooldowns;//collection
+client.databases = databases;//object -> class
+client.defaults = defaults;//object*object -> any
+client.getPrefix = getPrefix;//function(class) -> (string)
+client.getGuild = getGuild;//function(string) -> (object -> any)
+client.reportedErrors = reportedErrors;//collection
+client.sendErrMsg = sendErrMsg;//function(class,string,object,any) -> (null)
+client.errSendable = errSendable;//function(class,string,objec) -> (bool)
+client.getErrCode = getErrCode;//function(class,string,object) -> (string)
 
 //connect to discord api using bot token from .env file 
 client.login(process.env['DISCORD_TOKEN']);
