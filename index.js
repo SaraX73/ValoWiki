@@ -17,7 +17,7 @@ const reportedErrors = new Discord.Collection();
 const databases = {
     guilds: new x73db("guilds",{path: "DiscordDB"}),
     users: new x73db("users",{path: "DiscordDB"})
-}
+};
 
 //loading commands files
 const commandsFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
@@ -123,15 +123,15 @@ client.on("message",async(message) => {
 
                 //reply to the user and stop
                 return sendErrMsg(message,"cooldown",command,timeLeft);
-            }
-        }
+            };
+        };
         
         //add the user to the cooldown-list
         timestamps.set(message.author.id, now);
 
         //remove the user from the cooldown-list after the time ends
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-    }
+    };
 
     //now finally run the command
     try {
@@ -142,7 +142,7 @@ client.on("message",async(message) => {
         //send the error to the user if there is any
         message.reply(baseEmbed(message).setTitle("Error!").setDescription(`\`\`\`${e}\`\`\``));
     };
-})
+});
 
 
 //////////////
@@ -162,17 +162,17 @@ client.on("message",async(message) => {
                     .setDescription(`**My prefix is:** \`${prefix}\``);
                 message.reply(embed);
 
-                return true
-            }
-        }
-        return false
-    }
+                return true;
+            };
+        };
+        return false;
+    };
 
     //get args from string
     function getArgs(str = new String()) {
         //return an array (string but all spaces " " splited)
-        return str.split(/ +/)
-    }
+        return str.split(/ +/);
+    };
 
     //base bot embed
     function baseEmbed(message = new Discord.Message()) {
@@ -180,20 +180,20 @@ client.on("message",async(message) => {
                         .setColor(client.configs['embed_color'])
                         .setTimestamp(Date.now())
                         .setFooter(message.author.tag,message.author.displayAvatarURL({dynamic: true}))
-                        .setThumbnail(cdn['utils']['gameIcons']['icon_2'])
-    }
+                        .setThumbnail(cdn['utils']['gameIcons']['icon_2']);
+    };
 
     //get guild prefix
     function getPrefix(guild) {
         //get guild data
-        let data = getGuild(guild.id)
+        let data = getGuild(guild.id);
 
         //get prefix from that data
         let {prefix} = data;
 
         //return the prefix
-        return prefix
-    }
+        return prefix;
+    };
 
     // get/create guild data by ID
     function getGuild(id = String()) {
@@ -211,20 +211,23 @@ client.on("message",async(message) => {
             //check all options one-by-one and set it to defult if not exist
             for(let [key,value] of Object.entries(defaults)) {
                 if(!data[key]) data[key] = value;
-            }
-        }
+            };
+        };
 
         //save the data if there is any changes
         if(data !== oData) databases.guilds.set(id,data);
 
         //return the data
         return data;
-    }
+    };
 
     //some basic error messages
     function sendErrMsg(message,code,command,data) {
         //load the basic embed
         let embed = baseEmbed(message);
+
+        //check if should send error embed or just ignore the user
+        if(!errSendable(message,code,command)) return;
         
         //edit the embed (based in data and the error code)
         switch(code) {
@@ -255,7 +258,7 @@ client.on("message",async(message) => {
             if(typeof command.permissions == "string") {
 
             //process the permission to be user-friendly
-            let missing_prem = command.permissions.toLowerCase().split("_").join(" ")
+            let missing_prem = command.permissions.toLowerCase().split("_").join(" ");
                 //change the embed data
                 embed.setTitle(`Sorry!`);
                 embed.setDescription(`You need \`${missing_prem}\` permission in this **server/channel** to run ${command.name} command`);
@@ -270,15 +273,15 @@ client.on("message",async(message) => {
                 for(let prem of command.permissions){
                     //if the user don't have the correct permissions, add it to missing permissions list
                     if(!message.member.permissionsIn(message.channel).has(prem)) missing_prems.push(prem);
-                }
+                };
             
             //process the permissions to be user-friendly
-            missing_prems = missing_prems.map(prem => prem.toLowerCase().split("_").join(" "))
+            missing_prems = missing_prems.map(prem => prem.toLowerCase().split("_").join(" "));
 
             //change the embed data
             embed.setTitle(`Sorry!`);
             embed.setDescription(`\`${missing_prems.join("\`**,**\`")}\` permission(s) are missing, you need them to run \`${command.name}\` command in this **server/channel** `);
-            }
+            };
 
             break;
 
@@ -292,12 +295,59 @@ client.on("message",async(message) => {
             //return if code not found
             default:return;
 
-        }
+        };
         
         //stop if there isn't any changes to the embed
         let newEmbed = baseEmbed(message);
         if(embed.title == newEmbed.title && embed.description == newEmbed.description) return;
 
         //send the embed
-        message.reply(embed)
-    }
+        message.reply(embed);
+    };
+
+    //check if the bot should send the error (anit-err-spam)
+    function errSendable(message,code,command) {
+
+        //get currect time 
+        const now = Date.now();
+
+        //get full error code
+        let errCode = getErrCode(message,code,command);
+
+        //if this error reported recently
+        if(reportedErrors.has(errCode)) {
+            //get ends time for the error
+            const endsTime = reportedErrors.get(errCode);
+
+            //if time not ends yet
+            if(now < endsTime) {
+                //return FALSE to tell the code to stop
+                return false;
+            } else {
+                //remove the user
+                reportedErrors.delete(errCode);
+
+                //retrun TRUE to tell the code to continue
+                return true;
+            };
+
+        //else add this user
+        } else {
+            //get ends time
+            let endsTime = now + configs['error_cooldown'];
+
+            //add the user
+            reportedErrors.set(errCode,endsTime);
+
+            //remove the user after the time ends
+            setTimeout(() => reportedErrors.delete(errCode),configs['error_cooldown']);
+
+            //retrun TRUE to tell the code to continue
+            return true;
+        };
+    };
+
+    //get full error code
+    function getErrCode (message,code,command) {
+        return `command:${command.name};_code:${code};_user:${message.author.id};`
+    };
