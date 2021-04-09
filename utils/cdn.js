@@ -72,21 +72,21 @@ cdn['agents']['byNumber'] = [
 let agents_by_number = cdn['agents']['byNumber'];
 
 cdn['agents']['byName'] = {
-    "brimstone" : agents_by_number[0],
-    "phoenix"   : agents_by_number[1],
-    "sage"      : agents_by_number[2],
-    "sova"      : agents_by_number[3],
-    "viper"     : agents_by_number[4],
-    "cypher"    : agents_by_number[5],
-    "reyna"     : agents_by_number[6],
-    "killjoy"   : agents_by_number[7],
-    "breach"    : agents_by_number[8],
-    "omen"      : agents_by_number[9],
-    "jett"      : agents_by_number[10],
-    "raze"      : agents_by_number[11],
-    "skye"      : agents_by_number[12],
-    "yoru"      : agents_by_number[13],
-    "astra"     : agents_by_number[14],
+    "brimstone" : agents_by_number[1],
+    "phoenix"   : agents_by_number[2],
+    "sage"      : agents_by_number[3],
+    "sova"      : agents_by_number[4],
+    "viper"     : agents_by_number[5],
+    "cypher"    : agents_by_number[6],
+    "reyna"     : agents_by_number[7],
+    "killjoy"   : agents_by_number[8],
+    "breach"    : agents_by_number[9],
+    "omen"      : agents_by_number[10],
+    "jett"      : agents_by_number[11],
+    "raze"      : agents_by_number[12],
+    "skye"      : agents_by_number[13],
+    "yoru"      : agents_by_number[14],
+    "astra"     : agents_by_number[15],
 };
 
 cdn['abilities'] = {};
@@ -308,6 +308,13 @@ cdn['utils']['errors'] = {
     "error": `${baseURL}utils/errors/error.png`,
     "warn": `${baseURL}utils/errors/warn.png`,
     "info": `${baseURL}utils/errors/info.png`
+}
+
+cdn['utils']['roles'] = {
+    "Duelist": `${baseURL}utils/roles/Duelist.png`,
+    "Controller": `${baseURL}utils/roles/Controller.png`,
+    "Initiator": `${baseURL}utils/roles/Initiator.png`,
+    "Sentinel": `${baseURL}utils/roles/Sentinel.png`
 }
 
 module.exports = cdn;
