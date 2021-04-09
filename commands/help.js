@@ -1,11 +1,8 @@
-const Discord = require("discord.js");
-
-
 module.exports = {
     usage: "<command name>",
     description: "show all available commands / show specific command info",
     cooldown: 10,
-    run: async(message = new Discord.Message(),args) => {
+    run: async(message,args) => {
         //load client
         let client = message.client;
 

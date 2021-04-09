@@ -11,10 +11,10 @@ require("dotenv").config();
     //my own databases package :")
     const x73db = require("x73db");
 
-    //cdn manager
+    //cdn data-pack
     const cdn = require("./utils/cdn");
 
-    //metadata manager
+    //metadata data-pack
     const metadata = require("./utils/metadata")
 
     //bot configs
@@ -22,6 +22,9 @@ require("dotenv").config();
 
     //default users/guilds sittings
     const defaults = require("./defaults.json");
+
+    //custom emojis data-pack
+    const customEmojis = require("./utils/customEmojis");
 
 //classes construction
     //discord client
@@ -79,6 +82,7 @@ client.sendErrMsg = sendErrMsg;//function(class,string,object,any) -> (null)
 client.errSendable = errSendable;//function(class,string,objec) -> (bool)
 client.getErrCode = getErrCode;//function(class,string,object) -> (string)
 client.metadata = metadata;//object*object -> any
+client.customEmojis = customEmojis;//object -> string
 
 //connect to discord api using bot token from .env file 
 client.login(process.env['DISCORD_TOKEN']);
